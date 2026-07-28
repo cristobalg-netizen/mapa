@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petrilac · Clientes 24-25 + Pinturerías y ferreterías</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="_ds/modernist-bef7b3a1-d30a-45da-8b61-b57ce9bf3037/styles.css">
+<script src="_ds/modernist-bef7b3a1-d30a-45da-8b61-b57ce9bf3037/_ds_bundle.js"></script>
+<script src="data.js"></script>
+<style>
+html,body{margin:0;height:100%;overflow:hidden}
+#pcmApp{display:flex;flex-direction:column;height:100vh;background:var(--color-bg);color:var(--color-text)}
+#pcmBody{flex:1;display:flex;min-height:0;position:relative}
+#pcmMap{flex:1;min-width:0;height:100%}
+.pcm-side{width:380px;min-width:380px;background:var(--color-surface);border-right:2px solid var(--color-divider);
+  display:flex;flex-direction:column;overflow:hidden;z-index:20}
+.pcm-tabs{display:flex;border-bottom:2px solid var(--color-divider)}
+.pcm-tab{flex:1;padding:14px 10px;font-family:var(--font-heading);font-weight:800;font-size:13px;letter-spacing:.01em;
+  background:transparent;border:none;color:color-mix(in srgb,var(--color-text) 55%,transparent);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;border-right:1px solid var(--color-divider)}
+.pcm-tab:last-child{border-right:none}
+.pcm-tab .cnt{font-size:11px;font-weight:400;font-family:var(--font-body);opacity:.8}
+.pcm-tab.on{color:var(--color-accent);background:var(--color-bg)}
+.pcm-tab.on .cnt{color:var(--color-accent)}
+.pcm-close{display:none}
+.pcm-stats{display:flex;border-bottom:2px solid var(--color-divider)}
+.pcm-stat{flex:1;padding:14px 16px;border-right:1px solid var(--color-divider)}
+.pcm-stat:last-child{border-right:none}
+.pcm-stat .n{font-family:var(--font-heading);font-weight:800;font-size:22px;color:var(--color-accent);font-variant-numeric:tabular-nums}
+.pcm-stat .l{font-size:10.5px;color:color-mix(in srgb,var(--color-text) 55%,transparent);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.pcm-filters{padding:16px;border-bottom:2px solid var(--color-divider);display:flex;flex-direction:column;gap:10px}
+.pcm-inp{width:100%;padding:9px 11px;border:1px solid var(--color-divider);border-radius:0;font-size:13px;
+  background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}
+.pcm-inp:focus{outline:2px solid var(--color-accent);outline-offset:1px}
+.pcm-btnrow{display:flex;gap:6px;flex-wrap:wrap}
+.pcm-tbtn{flex:1;padding:7px 4px;font-size:11.5px;font-weight:600;border:1px solid var(--color-divider);
+  border-radius:0;background:var(--color-bg);cursor:pointer;color:color-mix(in srgb,var(--color-text) 60%,transparent);font-family:var(--font-body)}
+.pcm-tbtn.on{background:var(--color-accent);border-color:var(--color-accent);color:#fff}
+.pcm-rbtn.on[data-r="Ferretería"]{background:var(--color-neutral-800);border-color:var(--color-neutral-800)}
+.pcm-chk{display:flex;gap:8px;align-items:center;font-size:12.5px;color:color-mix(in srgb,var(--color-text) 65%,transparent);cursor:pointer}
+.pcm-vh{display:flex;justify-content:space-between;align-items:center;padding:11px 16px 8px;font-size:10.5px;
+  color:color-mix(in srgb,var(--color-text) 55%,transparent);text-transform:uppercase;letter-spacing:.06em;border-top:2px solid var(--color-divider)}
+.pcm-vh .lnks{display:flex;gap:8px}
+.pcm-vh button{border:none;background:none;color:var(--color-accent);cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font-body)}
+.pcm-listwrap{flex:1;overflow-y:auto;padding:6px 10px 16px}
+.pcm-vend{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:0;cursor:pointer;font-size:13px;user-select:none}
+.pcm-vend:hover{background:var(--color-bg)}
+.pcm-vend.off{opacity:.35}
+.pcm-vend .dot{width:12px;height:12px;flex-shrink:0;border:2px solid rgba(0,0,0,.25)}
+.pcm-vend .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcm-vend .ct{font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent);font-variant-numeric:tabular-nums}
+.pcm-pi{padding:10px 8px;border-radius:0;cursor:pointer;border-bottom:1px solid var(--color-divider)}
+.pcm-pi:hover{background:var(--color-bg)}
+.pcm-pi .t{display:flex;align-items:flex-start;gap:8px}
+.pcm-pi .sq{width:9px;height:9px;flex-shrink:0;margin-top:4px}
+.pcm-pi .nm{font-size:13px;font-weight:600;line-height:1.3}
+.pcm-pi .zn{font-size:11.5px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px;padding-left:17px}
+.pcm-pi .tl{font-size:12.5px;margin-top:2px;padding-left:17px;font-variant-numeric:tabular-nums}
+.pcm-pi .tl a{color:var(--color-accent);text-decoration:none;font-weight:600}
+.pcm-pi .tl a:hover{text-decoration:underline}
+.pcm-pi .notel{font-size:11.5px;color:color-mix(in srgb,var(--color-text) 35%,transparent);margin-top:2px;padding-left:17px;font-style:italic}
+.pcm-more{padding:10px;margin:10px 0 4px;width:100%;border:1px dashed var(--color-divider);border-radius:0;
+  background:transparent;color:var(--color-accent);font-weight:700;font-size:12px;cursor:pointer;font-family:var(--font-body)}
+.pcm-empty{padding:28px 12px;text-align:center;color:color-mix(in srgb,var(--color-text) 50%,transparent);font-size:12.5px}
+.pcm-foot{padding:10px 16px;border-top:2px solid var(--color-divider);font-size:10.5px;
+  color:color-mix(in srgb,var(--color-text) 50%,transparent);line-height:1.4}
+.leaflet-popup-content-wrapper{border-radius:0;box-shadow:var(--shadow-lg)}
+.leaflet-popup-content{font-family:var(--font-body);font-size:13px;line-height:1.5;margin:14px 16px;min-width:200px;color:var(--color-text)}
+.pp-name{font-family:var(--font-heading);font-weight:800;font-size:14.5px;margin-bottom:6px}
+.pp-row{color:color-mix(in srgb,var(--color-text) 80%,transparent);margin-top:2px}
+.pp-row b{color:var(--color-text);font-weight:700}
+.pp-vend{display:inline-flex;align-items:center;gap:7px;margin-top:8px;padding:4px 9px;
+  border-radius:0;font-size:11.5px;font-weight:600;background:var(--color-bg);border:1px solid var(--color-divider)}
+.pp-vend i{width:9px;height:9px;display:inline-block;flex-shrink:0}
+.pp-badge{display:inline-block;padding:2px 9px;border-radius:0;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.02em}
+.pp-btn{display:inline-block;margin-top:10px;padding:7px 13px;border-radius:0;background:var(--color-accent);
+  color:#fff !important;text-decoration:none;font-size:12px;font-weight:700;font-family:var(--font-heading)}
+.pp-btn:hover{background:var(--color-accent-600)}
+.pp-approx{font-size:10.5px;color:color-mix(in srgb,var(--color-text) 40%,transparent);margin-top:9px;font-style:italic;max-width:230px}
+#pcmLegend{position:absolute;z-index:1000;bottom:18px;left:50%;transform:translateX(-50%);background:var(--color-bg);
+  border:1px solid var(--color-divider);border-radius:0;padding:8px 14px;font-size:11px;display:flex;gap:16px;
+  box-shadow:var(--shadow-md);white-space:nowrap;font-family:var(--font-body)}
+#pcmLegend span{display:flex;align-items:center;gap:6px}
+#pcmLegend i{width:11px;height:11px;display:inline-block}
+#pcmLegend i.cli{border:2px solid #222;background:#9aa7b8}
+#pcmLegend i.p{background:var(--color-accent-600);border:1px solid var(--color-divider)}
+#pcmLegend i.f{background:var(--color-neutral-800);border:1px solid var(--color-divider)}
+.pcm-hamburger{display:none}
+@media(max-width:900px){
+  .pcm-hamburger{display:inline-flex}
+  .pcm-side{position:absolute;z-index:1100;height:100%;top:0;left:0;box-shadow:var(--shadow-lg);
+    transform:translateX(-100%);transition:transform .2s ease;width:min(380px,88vw);min-width:0}
+  .pcm-side.open{transform:translateX(0)}
+  .pcm-close{display:inline-flex}
+  #pcmLegend{display:none}
+}
+</style>
+</helmet>
+<div id="pcmApp">
+  <nav class="nav" style="background:var(--color-bg)">
+    <button type="button" class="btn btn-icon pcm-hamburger" id="pcmHam" aria-label="Abrir panel">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"></path></svg>
+    </button>
+    <span class="nav-brand">Petrilac</span>
+    <span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-right:auto">Mapa de Vendedores</span>
+  </nav>
+  <div id="pcmBody">
+    <div class="pcm-side" id="pcmSide">
+      <div class="pcm-tabs">
+        <button type="button" class="pcm-tab on" id="tabClientes">Clientes<span class="cnt" id="tabClientesCnt">–</span></button>
+        <button type="button" class="pcm-tab" id="tabProspectos">Prospectos<span class="cnt" id="tabProspectosCnt">–</span></button>
+        <button type="button" class="btn btn-icon pcm-close" id="pcmClose" aria-label="Cerrar panel" style="border-left:1px solid var(--color-divider);border-radius:0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div id="paneClientes">
+        <div class="pcm-stats">
+          <div class="pcm-stat"><div class="n" id="stN">–</div><div class="l">Clientes visibles</div></div>
+          <div class="pcm-stat"><div class="n" id="stL">–</div><div class="l">Lts prorrateados</div></div>
+        </div>
+        <div class="pcm-filters">
+          <input type="text" id="q" class="pcm-inp" placeholder="Buscar razón social, zona o localidad…">
+          <select id="prov" class="pcm-inp"><option value="">Todas las provincias</option></select>
+          <div class="pcm-btnrow">
+            <button class="pcm-tbtn on" data-c="A">Cat. A</button>
+            <button class="pcm-tbtn on" data-c="B">Cat. B</button>
+            <button class="pcm-tbtn on" data-c="C">Cat. C</button>
+          </div>
+          <label class="pcm-chk"><input type="checkbox" id="cmap" defaultChecked="{{ true }}"> Mostrar en el mapa</label>
+        </div>
+        <div class="pcm-vh"><span>Vendedores</span><span class="lnks">
+          <button id="allOn">Todos</button><button id="allOff">Ninguno</button></span></div>
+        <div class="pcm-listwrap" id="vendlist"></div>
+        <div class="pcm-foot">Fuente: CLI 24-25 CON SUC (limpio)</div>
+      </div>
+
+      <div id="paneProspectos" style="display:none">
+        <div class="pcm-stats">
+          <div class="pcm-stat"><div class="n" id="pN">–</div><div class="l">En lista</div></div>
+          <div class="pcm-stat"><div class="n" id="pT">–</div><div class="l">Con teléfono</div></div>
+        </div>
+        <div class="pcm-filters">
+          <input type="text" id="pq" class="pcm-inp" placeholder="Buscar nombre, zona o teléfono…">
+          <select id="pz" class="pcm-inp"><option value="">Todas las zonas</option></select>
+          <div class="pcm-btnrow">
+            <button class="pcm-tbtn pcm-rbtn on" data-r="Pinturería">Pinturerías</button>
+            <button class="pcm-tbtn pcm-rbtn on" data-r="Ferretería">Ferreterías</button>
+          </div>
+          <label class="pcm-chk"><input type="checkbox" id="pmap" defaultChecked="{{ true }}"> Mostrar en el mapa</label>
+        </div>
+        <div class="pcm-listwrap" id="plist" style="padding-top:14px"></div>
+        <div class="pcm-foot">Ubicación aproximada por código postal. Para la dirección exacta usá "Ver en Google Maps" en cada ficha.</div>
+      </div>
+    </div>
+    <div id="pcmMap" style="position:relative">
+    <div id="pcmLegend" style="position:absolute">
+      <span><i class="cli"></i>Cliente</span>
+      <span><i class="p"></i>Pinturería</span>
+      <span><i class="f"></i>Ferretería</span>
+    </div>
+  </div>
+</div>
+
+</div></x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;pinturiaColor&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#dd2b0f&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;#dd2b0f&quot;, &quot;#ae1800&quot;, &quot;#ff563c&quot;, &quot;#4d170e&quot;], &quot;section&quot;: &quot;Prospectos&quot;},
+  &quot;ferreteriaColor&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#444141&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;#444141&quot;, &quot;#2d2b2b&quot;, &quot;#605d5d&quot;, &quot;#201e1d&quot;], &quot;section&quot;: &quot;Prospectos&quot;},
+  &quot;defaultTab&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;clientes&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;clientes&quot;, &quot;prospectos&quot;], &quot;section&quot;: &quot;Comportamiento&quot;},
+  &quot;showLegend&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Comportamiento&quot;}
+}">
+class Component extends DCLogic {
+  renderVals(){ return {}; }
+
+  componentDidMount(){
+    const DATA = window.DATA, PINT = window.PINT, COLORS = window.COLORS;
+    const P_COL = {
+      "Pinturería": this.props.pinturiaColor || "#dd2b0f",
+      "Ferretería": this.props.ferreteriaColor || "#444141"
+    };
+    const V = DATA.vend, R = DATA.rows;
+    const $ = id => document.getElementById(id);
+
+    const map = L.map('pcmMap', { preferCanvas: true }).setView([-38.5, -63.6], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+    const renderer = L.canvas({ padding: .4 });
+
+    const fmt = n => n.toLocaleString('es-AR', { maximumFractionDigits: 0 });
+    const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    /* ---- clientes ---- */
+    const vendOn = V.map(() => true), catOn = { A: true, B: true, C: true };
+    let provSel = "", query = "", cOnMap = true;
+
+    const markers = R.map(r => {
+      const [lat, lng, name, zona, prov, vi, lts, cat, loc] = r;
+      const m = L.circleMarker([lat, lng], { renderer, radius: cat === 'A' ? 7 : cat === 'B' ? 5.5 : 4.5,
+        fillColor: COLORS[vi % COLORS.length], color: '#222', weight: .7, fillOpacity: .85 });
+      m.bindPopup(`<div class="pp-name">${esc(name)}</div>
+        <div class="pp-row"><b>Zona:</b> ${esc(zona) || '–'} · ${esc(prov)}</div>
+        <div class="pp-row"><b>Localidad:</b> ${esc(loc) || '–'}</div>
+        <div class="pp-row"><b>Categoría:</b> ${esc(cat)} · <b>Lts 24+25:</b> ${fmt(lts)}</div>
+        <div class="pp-vend"><i style="background:${COLORS[vi % COLORS.length]}"></i>${esc(V[vi])}</div>`);
+      return m;
+    });
+
+    [...new Set(R.map(r => r[4]))].sort((a, b) => a.localeCompare(b, 'es')).forEach(p => {
+      const o = document.createElement('option'); o.value = o.textContent = p;
+      $('prov').appendChild(o);
+    });
+
+    const counts = V.map((_, i) => R.filter(r => r[5] === i).length);
+    const vl = $('vendlist');
+    V.forEach((v, i) => {
+      const d = document.createElement('div'); d.className = 'pcm-vend'; d.dataset.i = i;
+      d.innerHTML = `<span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>
+        <span class="nm">${esc(v)}</span><span class="ct">${counts[i]}</span>`;
+      d.onclick = () => { vendOn[i] = !vendOn[i]; d.classList.toggle('off', !vendOn[i]); refresh(); };
+      vl.appendChild(d);
+    });
+
+    function visible(r) {
+      const [, , name, zona, prov, vi, , cat, loc] = r;
+      if (!vendOn[vi] || !catOn[cat]) return false;
+      if (provSel && prov !== provSel) return false;
+      if (query) { const q = query.toLowerCase(); if (!(name + ' ' + zona + ' ' + loc).toLowerCase().includes(q)) return false; }
+      return true;
+    }
+
+    let firstFit = true;
+    function refresh(fit) {
+      let n = 0, lts = 0; const shown = [];
+      R.forEach((r, i) => {
+        const on = cOnMap && visible(r);
+        if (on) { if (!map.hasLayer(markers[i])) markers[i].addTo(map); shown.push(markers[i]); }
+        else if (map.hasLayer(markers[i])) map.removeLayer(markers[i]);
+        if (visible(r)) { n++; lts += r[6]; }
+      });
+      $('stN').textContent = fmt(n); $('stL').textContent = fmt(lts);
+      $('tabClientesCnt').textContent = fmt(n);
+      if ((fit || firstFit) && shown.length) { map.fitBounds(L.featureGroup(shown).getBounds().pad(.05)); firstFit = false; }
+    }
+
+    $('q').addEventListener('input', e => { query = e.target.value.trim(); refresh(); });
+    $('prov').addEventListener('change', e => { provSel = e.target.value; refresh(!!provSel); });
+    $('cmap').addEventListener('change', e => { cOnMap = e.target.checked; refresh(); });
+    document.querySelectorAll('.pcm-tbtn[data-c]').forEach(b => b.onclick = () => {
+      const c = b.dataset.c; catOn[c] = !catOn[c]; b.classList.toggle('on', catOn[c]); refresh();
+    });
+    $('allOn').onclick = () => { vendOn.fill(true); document.querySelectorAll('.pcm-vend').forEach(d => d.classList.remove('off')); refresh(); };
+    $('allOff').onclick = () => { vendOn.fill(false); document.querySelectorAll('.pcm-vend').forEach(d => d.classList.add('off')); refresh(); };
+
+    /* ---- pinturerías y ferreterías ---- */
+    const rubOn = { "Pinturería": true, "Ferretería": true };
+    let pQuery = "", pZona = "", pOnMap = true, pLimit = 200;
+
+    const pMarkers = PINT.map(p => {
+      const [nom, rub, zon, prov, tel, dir, link, lat, lng, how] = p;
+      if (lat === null) return null;
+      const col = P_COL[rub] || P_COL["Pinturería"];
+      const m = L.circleMarker([lat, lng], { renderer, radius: 6, fillColor: col, color: '#fff', weight: 2, fillOpacity: .95 });
+      const aprox = how === 'cp' ? 'Ubicación aproximada: centro del código postal.'
+        : how === 'barrio' ? 'Ubicación aproximada: centro del barrio.'
+        : 'Ubicación estimada. Verificá en Google Maps.';
+      m.bindPopup(`<div class="pp-name">${esc(nom)}</div>
+        <div style="margin:3px 0 8px"><span class="pp-badge" style="background:${col}">${esc(rub)}</span></div>
+        <div class="pp-row"><b>Zona:</b> ${esc(zon)} · ${esc(prov)}</div>
+        <div class="pp-row"><b>Tel:</b> ${tel ? `<a href="tel:${tel.replace(/[^+\d]/g, '')}">${esc(tel)}</a>` : '<i>sin teléfono</i>'}</div>
+        <div class="pp-row"><b>Dirección:</b> ${esc(dir)}</div>
+        ${link ? `<a class="pp-btn" href="${esc(link)}" target="_blank" rel="noopener">Ver en Google Maps</a>` : ''}
+        <div class="pp-approx">${aprox}</div>`);
+      return m;
+    });
+
+    (() => {
+      const c = {}; PINT.forEach(p => c[p[2]] = (c[p[2]] || 0) + 1);
+      const sel = $('pz');
+      Object.keys(c).sort((a, b) => c[b] - c[a] || a.localeCompare(b, 'es')).forEach(z => {
+        const o = document.createElement('option'); o.value = z; o.textContent = `${z} (${c[z]})`; sel.appendChild(o);
+      });
+    })();
+
+    function pVisible(p) {
+      const [nom, rub, zon, prov, tel, dir] = p;
+      if (!rubOn[rub]) return false;
+      if (pZona && zon !== pZona) return false;
+      if (pQuery) { const q = pQuery.toLowerCase(); if (!(nom + ' ' + zon + ' ' + prov + ' ' + (tel || '') + ' ' + dir).toLowerCase().includes(q)) return false; }
+      return true;
+    }
+
+    const plist = $('plist');
+    function pRefresh(fit) {
+      const idx = []; PINT.forEach((p, i) => { if (pVisible(p)) idx.push(i); });
+      $('pN').textContent = fmt(idx.length);
+      $('pT').textContent = fmt(idx.filter(i => PINT[i][4]).length);
+      $('tabProspectosCnt').textContent = fmt(idx.length);
+
+      const shown = [];
+      PINT.forEach((p, i) => {
+        const m = pMarkers[i]; if (!m) return;
+        if (pOnMap && pVisible(p)) { if (!map.hasLayer(m)) m.addTo(map); shown.push(m); }
+        else if (map.hasLayer(m)) map.removeLayer(m);
+      });
+
+      plist.innerHTML = '';
+      if (!idx.length) { plist.innerHTML = '<div class="pcm-empty">Sin resultados con estos filtros.</div>'; return; }
+      idx.slice(0, pLimit).forEach(i => {
+        const [nom, rub, zon, prov, tel, dir, link] = PINT[i];
+        const d = document.createElement('div'); d.className = 'pcm-pi';
+        d.innerHTML = `<div class="t"><span class="sq" style="background:${P_COL[rub] || P_COL['Pinturería']}"></span>
+            <span class="nm">${esc(nom)}</span></div>
+          <div class="zn">${esc(zon)} · ${esc(prov)}</div>
+          ${tel ? `<div class="tl"><a href="tel:${tel.replace(/[^+\d]/g, '')}">${esc(tel)}</a></div>` : `<div class="notel">sin teléfono</div>`}`;
+        d.onclick = e => {
+          if (e.target.tagName === 'A') return;
+          if (pMarkers[i]) {
+            if (!pOnMap) { $('pmap').checked = true; pOnMap = true; pRefresh(); }
+            map.setView(pMarkers[i].getLatLng(), 15); pMarkers[i].openPopup();
+          } else if (link) { window.open(link, '_blank'); }
+        };
+        plist.appendChild(d);
+      });
+      if (idx.length > pLimit) {
+        const b = document.createElement('button'); b.className = 'pcm-more';
+        b.textContent = `Ver más (${idx.length - pLimit} restantes)`;
+        b.onclick = () => { pLimit += 200; pRefresh(); }; plist.appendChild(b);
+      }
+      if (fit && shown.length) map.fitBounds(L.featureGroup(shown).getBounds().pad(.08));
+    }
+
+    $('pq').addEventListener('input', e => { pQuery = e.target.value.trim(); pLimit = 200; pRefresh(); });
+    $('pz').addEventListener('change', e => { pZona = e.target.value; pLimit = 200; pRefresh(!!pZona); });
+    $('pmap').addEventListener('change', e => { pOnMap = e.target.checked; pRefresh(); });
+    document.querySelectorAll('.pcm-rbtn').forEach(b => b.onclick = () => {
+      const r = b.dataset.r; rubOn[r] = !rubOn[r]; b.classList.toggle('on', rubOn[r]); pLimit = 200; pRefresh();
+    });
+
+    /* ---- tabs ---- */
+    function setTab(tab) {
+      const cli = tab === 'clientes';
+      $('tabClientes').classList.toggle('on', cli);
+      $('tabProspectos').classList.toggle('on', !cli);
+      $('paneClientes').style.display = cli ? '' : 'none';
+      $('paneProspectos').style.display = cli ? 'none' : '';
+    }
+    $('tabClientes').onclick = () => setTab('clientes');
+    $('tabProspectos').onclick = () => setTab('prospectos');
+    setTab(this.props.defaultTab === 'prospectos' ? 'prospectos' : 'clientes');
+    if (this.props.showLegend === false) $('pcmLegend').style.display = 'none';
+
+    /* ---- mobile panel ---- */
+    function toggleSide(open) {
+      const el = $('pcmSide');
+      const willOpen = open !== undefined ? open : !el.classList.contains('open');
+      el.classList.toggle('open', willOpen);
+      setTimeout(() => map.invalidateSize(), 220);
+    }
+    $('pcmHam').onclick = () => toggleSide();
+    $('pcmClose').onclick = () => toggleSide(false);
+
+    refresh(); pRefresh();
+    setTimeout(() => map.invalidateSize(), 60);
+  }
+}
+
+</script>
+</body>
+</html>
